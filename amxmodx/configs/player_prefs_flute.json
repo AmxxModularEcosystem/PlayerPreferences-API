@@ -1,7 +1,6 @@
 {
   "url": "https://example.com",
   "token": "<bearer-here>",
-  "x_api_key": "<x-api-here>",
   "server_id": 1,
   "timeout": 60.0
 }

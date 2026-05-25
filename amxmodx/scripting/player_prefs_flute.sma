@@ -28,7 +28,7 @@ enum _: RequestData
 
 new g_szBaseUrl[MAX_URL_LENGTH];
 new g_szAuthHeader[MAX_TOKEN_LENGTH + 8];
-new g_szApiKey[MAX_TOKEN_LENGTH]; 
+new g_szToken[MAX_TOKEN_LENGTH];
 
 new g_iServerId;
 new g_iTimeoutMs;
@@ -315,7 +315,7 @@ EzHttpOptions: BuildRequestOptions()
   new EzHttpOptions: hOptions = ezhttp_create_options();
 
   ezhttp_option_set_header(hOptions,  "Authorization", g_szAuthHeader);
-  ezhttp_option_set_header(hOptions, "X-API-Key", g_szApiKey);
+  ezhttp_option_set_header(hOptions, "X-API-Key", g_szToken);
   ezhttp_option_set_header(hOptions,  "Accept", "application/json");
   ezhttp_option_set_timeout(hOptions, g_iTimeoutMs);
 
@@ -339,11 +339,8 @@ bool: ReadConfig()
     return false;
   }
 
-  new szToken[MAX_TOKEN_LENGTH];
-
   json_object_get_string(hConfig, "url", g_szBaseUrl, charsmax(g_szBaseUrl));
-  json_object_get_string(hConfig, "token", szToken, charsmax(szToken));
-  json_object_get_string(hConfig, "x_api_key", g_szApiKey, charsmax(g_szApiKey));
+  json_object_get_string(hConfig, "token", g_szToken, charsmax(g_szToken));
   g_iServerId  = json_object_get_number(hConfig, "server_id");
   g_iTimeoutMs = json_object_get_number(hConfig, "timeout");
 
@@ -356,9 +353,9 @@ bool: ReadConfig()
   if (iLen > 0 && g_szBaseUrl[iLen - 1] == '/')
     g_szBaseUrl[iLen - 1] = EOS;
 
-  formatex(g_szAuthHeader, charsmax(g_szAuthHeader), "Bearer %s", szToken);
+  formatex(g_szAuthHeader, charsmax(g_szAuthHeader), "Bearer %s", g_szToken);
 
-  if (g_szBaseUrl[0] == EOS || szToken[0] == EOS || g_iServerId <= 0)
+  if (g_szBaseUrl[0] == EOS || g_szToken[0] == EOS || g_iServerId <= 0)
   {
     log_amx("[PP Flute] Конфиг неполный: нужны url, token и server_id > 0.");
     return false;
