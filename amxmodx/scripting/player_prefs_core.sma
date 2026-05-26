@@ -1,7 +1,5 @@
 #include <amxmodx>
-
-const MAX_KEY_LENGTH = 64;
-const MAX_VALUE_LENGTH = 256;
+#include <player_prefs>
 
 enum _: PublicForward
 {
@@ -27,7 +25,7 @@ new g_iProviderForwards[ProviderForward];
 
 public plugin_init()
 {
-  register_plugin("Player Prefs Core", "1.0.1", "ufame");
+  register_plugin("Player Prefs Core", "1.0.2", "ufame");
 
   g_tKeyDefaults = TrieCreate();
 
@@ -359,9 +357,9 @@ RegisterPublicForwards()
 
 RegisterProviderForwards()
 {
-  g_iProviderForwards[ProviderForward_Connect]     = CreateMultiForward("pp_provider_connect",      ET_IGNORE);
-  g_iProviderForwards[ProviderForward_LoadKeys]    = CreateMultiForward("pp_provider_load_keys",    ET_IGNORE);
-  g_iProviderForwards[ProviderForward_LoadPlayer]  = CreateMultiForward("pp_provider_load_player",  ET_IGNORE, FP_CELL, FP_STRING);
-  g_iProviderForwards[ProviderForward_SavePref]    = CreateMultiForward("pp_provider_save_pref",    ET_IGNORE, FP_CELL, FP_STRING, FP_STRING, FP_STRING);
+  g_iProviderForwards[ProviderForward_Connect] = CreateMultiForward("pp_provider_connect",      ET_IGNORE);
+  g_iProviderForwards[ProviderForward_LoadKeys] = CreateMultiForward("pp_provider_load_keys",    ET_IGNORE);
+  g_iProviderForwards[ProviderForward_LoadPlayer] = CreateMultiForward("pp_provider_load_player",  ET_IGNORE, FP_CELL, FP_STRING);
+  g_iProviderForwards[ProviderForward_SavePref] = CreateMultiForward("pp_provider_save_pref",    ET_IGNORE, FP_CELL, FP_STRING, FP_STRING, FP_STRING);
   g_iProviderForwards[ProviderForward_RegisterKey] = CreateMultiForward("pp_provider_register_key", ET_IGNORE, FP_STRING, FP_STRING);
 }

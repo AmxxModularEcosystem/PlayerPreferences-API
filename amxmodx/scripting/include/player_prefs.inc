@@ -5,6 +5,9 @@
 
 #pragma reqlib player_prefs_core
 
+const MAX_KEY_LENGTH   = 64;
+const MAX_VALUE_LENGTH = 256;
+
 /**
  * Called once after the core and provider finish initialization.
  *
@@ -15,7 +18,7 @@
  *
  * @param success   true if the storage provider is ready.
  */
-forward pp_initialized(bool: success);
+forward pp_initialized(const bool: success);
 
 /**
  * Called when all preferences for a player have been loaded
@@ -23,14 +26,14 @@ forward pp_initialized(bool: success);
  *
  * @param playerIndex   Player index (1..MAX_PLAYERS).
  */
-forward pp_player_loaded(playerIndex);
+forward pp_player_loaded(const playerIndex);
 
 /**
  * Called after a player's preference has been written to storage.
  *
  * @param playerIndex   Player index.
  */
-forward pp_player_saved(playerIndex);
+forward pp_player_saved(const playerIndex);
 
 /**
  * Returns true if the player's preferences are fully loaded
@@ -39,7 +42,7 @@ forward pp_player_saved(playerIndex);
  * @param playerIndex   Player index (1..MAX_PLAYERS).
  * @return              true if loaded.
  */
-native bool: pp_is_loaded(playerIndex);
+native bool: pp_is_loaded(const playerIndex);
 
 /**
  * Gets the player's string preference.
@@ -51,7 +54,7 @@ native bool: pp_is_loaded(playerIndex);
  * @param destLen       Size of the destination buffer.
  * @return              true on success.
  */
-native bool: pp_get_string(playerIndex, const key[], dest[], destLen);
+native bool: pp_get_string(const playerIndex, const key[], dest[], destLen);
 
 /**
  * Gets the player's integer preference.
@@ -62,7 +65,7 @@ native bool: pp_get_string(playerIndex, const key[], dest[], destLen);
  * @param defaultValue  Value returned when nothing is stored.
  * @return              Stored value or defaultValue.
  */
-native pp_get_int(playerIndex, const key[], defaultValue = 0);
+native pp_get_int(const playerIndex, const key[], defaultValue = 0);
 
 /**
  * Gets the player's float preference.
@@ -73,7 +76,7 @@ native pp_get_int(playerIndex, const key[], defaultValue = 0);
  * @param defaultValue  Value returned when nothing is stored.
  * @return              Stored value or defaultValue.
  */
-native Float: pp_get_float(playerIndex, const key[], Float: defaultValue = 0.0);
+native Float: pp_get_float(const playerIndex, const key[], Float: defaultValue = 0.0);
 
 /**
  * Gets the player's boolean preference.
@@ -84,7 +87,7 @@ native Float: pp_get_float(playerIndex, const key[], Float: defaultValue = 0.0);
  * @param defaultValue  Value returned when nothing is stored.
  * @return              Stored value or defaultValue.
  */
-native bool: pp_get_bool(playerIndex, const key[], bool: defaultValue = false);
+native bool: pp_get_bool(const playerIndex, const key[], bool: defaultValue = false);
 
 /**
  * Sets the player's string preference.
@@ -95,7 +98,7 @@ native bool: pp_get_bool(playerIndex, const key[], bool: defaultValue = false);
  * @param defaultValue  Default forwarded to the provider for key registration.
  * @return              true on success.
  */
-native bool: pp_set_string(playerIndex, const key[], const value[], const defaultValue[] = "");
+native bool: pp_set_string(const playerIndex, const key[], const value[], const defaultValue[] = "");
 
 /**
  * Sets the player's integer preference.
@@ -106,7 +109,7 @@ native bool: pp_set_string(playerIndex, const key[], const value[], const defaul
  * @param defaultValue  Default forwarded to the provider for key registration.
  * @return              true on success.
  */
-native bool: pp_set_int(playerIndex, const key[], value, defaultValue = 0);
+native bool: pp_set_int(const playerIndex, const key[], value, defaultValue = 0);
 
 /**
  * Sets the player's float preference.
@@ -117,7 +120,7 @@ native bool: pp_set_int(playerIndex, const key[], value, defaultValue = 0);
  * @param defaultValue  Default forwarded to the provider for key registration.
  * @return              true on success.
  */
-native bool: pp_set_float(playerIndex, const key[], Float: value, Float: defaultValue = 0.0);
+native bool: pp_set_float(const playerIndex, const key[], Float: value, Float: defaultValue = 0.0);
 
 /**
  * Sets the player's boolean preference.
@@ -128,7 +131,7 @@ native bool: pp_set_float(playerIndex, const key[], Float: value, Float: default
  * @param defaultValue  Default forwarded to the provider for key registration.
  * @return              true on success.
  */
-native bool: pp_set_bool(playerIndex, const key[], bool: value, bool: defaultValue = false);
+native bool: pp_set_bool(const playerIndex, const key[], bool: value, bool: defaultValue = false);
 
 /**
  * Registers a key and its default value with the active provider.
@@ -163,7 +166,7 @@ forward pp_provider_load_keys();
  * @param playerIndex   Player index.
  * @param authId        Player's SteamID string.
  */
-forward pp_provider_load_player(playerIndex, const authId[]);
+forward pp_provider_load_player(const playerIndex, const authId[]);
 
 /**
  * Core requests the provider to persist one preference for a player.
@@ -173,7 +176,7 @@ forward pp_provider_load_player(playerIndex, const authId[]);
  * @param key           Preference key name.
  * @param value         String value to store.
  */
-forward pp_provider_save_pref(playerIndex, const authId[], const key[], const value[]);
+forward pp_provider_save_pref(const playerIndex, const authId[], const key[], const value[]);
 
 /**
  * Core requests the provider to register or update a key's default value.
@@ -189,7 +192,7 @@ forward pp_provider_register_key(const key[], const defaultValue[]);
  *
  * @param success   true if the storage is open and ready.
  */
-native pp_provider_ready(bool: success);
+native pp_provider_ready(const bool: success);
 
 /**
  * Passes one key from storage to the core.
@@ -214,7 +217,7 @@ native pp_provider_keys_done();
  * @param key           Preference key name.
  * @param value         Stored value string.
  */
-native pp_provider_pref_loaded(playerIndex, const key[], const value[]);
+native pp_provider_pref_loaded(const playerIndex, const key[], const value[]);
 
 /**
  * Signals that all preferences for a player have been delivered.
@@ -223,4 +226,4 @@ native pp_provider_pref_loaded(playerIndex, const key[], const value[]);
  *
  * @param playerIndex   Player index.
  */
-native pp_provider_player_done(playerIndex);
+native pp_provider_player_done(const playerIndex);

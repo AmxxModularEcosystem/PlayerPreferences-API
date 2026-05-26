@@ -1,10 +1,8 @@
 #include <amxmodx>
 #include <easy_http>
 #include <json>
-#include <player_prefs_provider>
+#include <player_prefs>
 
-const MAX_KEY_LENGTH   = 64;
-const MAX_VALUE_LENGTH = 256;
 const MAX_URL_LENGTH   = 256;
 const MAX_TOKEN_LENGTH = 256;
 
@@ -20,10 +18,10 @@ enum RequestType
 
 enum _: RequestData
 {
-  RequestType: rd_type,                // RequestType
-  rd_player,              // индекс игрока
-  rd_userid,              // userid на момент отправки (защита от рассинхрона)
-  rd_key[MAX_KEY_LENGTH]  // имя ключа (только для SavePref, иначе пусто)
+  RequestType: rd_type,
+  rd_player,
+  rd_userid,
+  rd_key[MAX_KEY_LENGTH]
 };
 
 new g_szBaseUrl[MAX_URL_LENGTH];
@@ -37,7 +35,7 @@ new bool: g_bDebugMode;
 
 public plugin_init()
 {
-  register_plugin("Player Prefs — Flute REST Provider", "1.0.0", "ufame");
+  register_plugin("Player Prefs — Flute REST Provider", "1.0.1", "ufame");
 
   g_bDebugMode = bool: (plugin_flags() & AMX_FLAG_DEBUG);
 }
@@ -50,7 +48,7 @@ public pp_provider_connect()
     return;
   }
 
-  log_amx("[PP Flute] Конфиг загружен. URL: %s, Server ID: %d", g_szBaseUrl, g_iServerId);
+  log_amx("[PP Flute] Config loaded. URL: %s, Server ID: %d", g_szBaseUrl, g_iServerId);
   pp_provider_ready(true);
 }
 
@@ -68,7 +66,7 @@ public pp_provider_load_player(const playerIndex, const authId[])
   );
 
   new data[RequestData];
-  data[rd_type]   = RequestType_LoadPlayer;
+  data[rd_type] = RequestType_LoadPlayer;
   data[rd_player] = playerIndex;
   data[rd_userid] = get_user_userid(playerIndex);
 
@@ -83,7 +81,7 @@ public pp_provider_load_player(const playerIndex, const authId[])
 public pp_provider_save_pref(const playerIndex, const authId[], const key[], const value[])
 {
   new data[RequestData];
-  data[rd_type]   = RequestType_SavePref;
+  data[rd_type] = RequestType_SavePref;
   data[rd_player] = playerIndex;
   data[rd_userid] = get_user_userid(playerIndex);
   formatex(data[rd_key], MAX_KEY_LENGTH, key);
@@ -92,7 +90,7 @@ public pp_provider_save_pref(const playerIndex, const authId[], const key[], con
   formatex(szUrl, charsmax(szUrl), "%s%s", g_szBaseUrl, ENDPOINT_SETTINGS);
 
   new EzHttpOptions: hOptions = BuildRequestOptions();
-  ezhttp_option_set_header(hOptions,   "Content-Type", "application/json");
+  ezhttp_option_set_header(hOptions, "Content-Type", "application/json");
   ezhttp_option_set_user_data(hOptions, data, sizeof data);
   SetSavePrefBody(hOptions, authId, key, value);
 
@@ -113,7 +111,7 @@ public OnLoadPlayerComplete(EzHttpRequest: request)
   {
     new szError[128];
     ezhttp_get_error_message(request, szError, charsmax(szError));
-    log_amx("[PP Flute] LoadPlayer #%d: ошибка запроса: %s", playerIndex, szError);
+    log_amx("[PP Flute] LoadPlayer #%d: request error: %s", playerIndex, szError);
 
     if (IsUseridValid(playerIndex, userId))
       pp_provider_player_done(playerIndex);
@@ -123,7 +121,7 @@ public OnLoadPlayerComplete(EzHttpRequest: request)
 
   if (!IsUseridValid(playerIndex, userId))
   {
-    __debug("[PP Flute] LoadPlayer: игрок %d уже отключился.", playerIndex);
+    __debug("[PP Flute] LoadPlayer: player %d disconnected.", playerIndex);
     return;
   }
 
@@ -131,14 +129,14 @@ public OnLoadPlayerComplete(EzHttpRequest: request)
 
   if (statusCode == 404)
   {
-    __debug("[PP Flute] LoadPlayer #%d: Steam-аккаунт не найден в Flute (404).", playerIndex);
+    __debug("[PP Flute] LoadPlayer #%d: The Steam account was not found (404).", playerIndex);
     pp_provider_player_done(playerIndex);
     return;
   }
 
   if (statusCode != 200)
   {
-    log_amx("[PP Flute] LoadPlayer #%d: неожиданный HTTP %d.", playerIndex, statusCode);
+    log_amx("[PP Flute] LoadPlayer #%d: unexpected HTTP %d.", playerIndex, statusCode);
     pp_provider_player_done(playerIndex);
     return;
   }
@@ -147,7 +145,7 @@ public OnLoadPlayerComplete(EzHttpRequest: request)
 
   if (hRoot == EzInvalid_JSON)
   {
-    log_amx("[PP Flute] LoadPlayer #%d: не удалось разобрать JSON ответа.", playerIndex);
+    log_amx("[PP Flute] LoadPlayer #%d: couldn't parse the JSON response.", playerIndex);
     pp_provider_player_done(playerIndex);
     return;
   }
@@ -164,7 +162,7 @@ public OnLoadPlayerComplete(EzHttpRequest: request)
 
   pp_provider_player_done(playerIndex);
 
-  __debug("[PP Flute] LoadPlayer #%d завершён.", playerIndex);
+  __debug("[PP Flute] LoadPlayer #%d success.", playerIndex);
 }
 
 public OnSavePrefComplete(EzHttpRequest: request)
@@ -179,7 +177,7 @@ public OnSavePrefComplete(EzHttpRequest: request)
   {
     new szError[128];
     ezhttp_get_error_message(request, szError, charsmax(szError));
-    log_amx("[PP Flute] SavePref #%d <%s>: ошибка запроса: %s", playerIndex, data[rd_key], szError);
+    log_amx("[PP Flute] SavePref #%d <%s>: responce error: %s", playerIndex, data[rd_key], szError);
     return;
   }
 
@@ -194,7 +192,7 @@ public OnSavePrefComplete(EzHttpRequest: request)
     return;
   }
 
-  __debug("[PP Flute] SavePref #%d <%s>: сохранено (HTTP %d).", playerIndex, data[rd_key], statusCode);
+  __debug("[PP Flute] SavePref #%d <%s>: saved (HTTP %d).", playerIndex, data[rd_key], statusCode);
 }
 
 ParseAndForwardSettings(playerIndex, EzJSON: hSettings)
@@ -216,7 +214,7 @@ ParseAndForwardSettings(playerIndex, EzJSON: hSettings)
 
     pp_provider_pref_loaded(playerIndex, key, value);
 
-    __debug("[PP Flute] Загружено: player %d <%s> = <%s>", playerIndex, key, value);
+    __debug("[PP Flute] Loaded: player %d <%s> = <%s>", playerIndex, key, value);
   }
 }
 
@@ -252,14 +250,14 @@ JsonValueToString(EzJSON: hVal, szDest[], iDestLen)
 
 SetSavePrefBody(EzHttpOptions: hOptions, const authId[], const key[], const value[])
 {
-  new EzJSON: hRoot     = ezjson_init_object();
+  new EzJSON: hRoot = ezjson_init_object();
   new EzJSON: hSettings = ezjson_init_object();
-  new EzJSON: hVal      = StringToJsonValue(value);
+  new EzJSON: hVal = StringToJsonValue(value);
 
   ezjson_object_set_string(hRoot, "steamid",   authId);
   ezjson_object_set_number(hRoot, "server_id", g_iServerId);
   ezjson_object_set_value(hSettings, key,       hVal);
-  ezjson_object_set_value(hRoot,    "settings", hSettings);
+  ezjson_object_set_value(hRoot, "settings", hSettings);
 
   ezhttp_option_set_body_from_json(hOptions, hRoot);
 
@@ -289,9 +287,8 @@ bool: IsNumericString(const szStr[])
   if (iLen == 0)
     return false;
 
-  new iStart          = (szStr[0] == '-') ? 1 : 0;
-  new bool: bHasDot   = false;
-  new bool: bHasDigit = false;
+  new iStart        = (szStr[0] == '-') ? 1 : 0;
+  new bool: bHasDot = false;
 
   for (new i = iStart; i < iLen; i++)
   {
@@ -299,24 +296,25 @@ bool: IsNumericString(const szStr[])
     {
       if (bHasDot)
         return false;
+
       bHasDot = true;
-    } else if (szStr[i] >= '0' && szStr[i] <= '9') {
-      bHasDigit = true;
-    } else {
+    }
+    else if (!isdigit(szStr[i]))
+    {
       return false;
     }
   }
 
-  return bHasDigit;
+  return iLen > iStart;
 }
 
 EzHttpOptions: BuildRequestOptions()
 {
   new EzHttpOptions: hOptions = ezhttp_create_options();
 
-  ezhttp_option_set_header(hOptions,  "Authorization", g_szAuthHeader);
+  ezhttp_option_set_header(hOptions, "Authorization", g_szAuthHeader);
   ezhttp_option_set_header(hOptions, "X-API-Key", g_szToken);
-  ezhttp_option_set_header(hOptions,  "Accept", "application/json");
+  ezhttp_option_set_header(hOptions, "Accept", "application/json");
   ezhttp_option_set_timeout(hOptions, g_iTimeoutMs);
 
   return hOptions;
@@ -326,7 +324,7 @@ bool: ReadConfig()
 {
   if (!file_exists(CONFIG_FILE))
   {
-    log_amx("[PP Flute] Файл конфига не найден: %s", CONFIG_FILE);
+    log_error(AMX_ERR_NATIVE, "[PP Flute] Config file not found: %s", CONFIG_FILE);
     return false;
   }
 
@@ -357,7 +355,7 @@ bool: ReadConfig()
 
   if (g_szBaseUrl[0] == EOS || g_szToken[0] == EOS || g_iServerId <= 0)
   {
-    log_amx("[PP Flute] Конфиг неполный: нужны url, token и server_id > 0.");
+    log_amx("[PP Flute] The configuration is incomplete: need a url, token, and server_id > 0.");
     return false;
   }
 
@@ -375,5 +373,5 @@ __debug(const szFormat[], any: ...) {
 
   new szMessage[1024];
   vformat(szMessage, charsmax(szMessage), szFormat, 2);
-  log_to_file("pp_debug.log", szMessage);
+  log_to_file("pp_flute_debug.log", szMessage);
 }

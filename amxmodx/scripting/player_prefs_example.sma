@@ -15,10 +15,10 @@ new const Float: g_aPositions[POSITION_COUNT][] =
 
 new const g_szPositionNames[POSITION_COUNT][] =
 {
-  "Лево / Середина",
-  "Лево / Низ",
-  "Право / Середина",
-  "Право / Низ"
+  "Left / Middle",
+  "Left / Bottom",
+  "Right / Middle",
+  "Right / Bottom"
 };
 
 new g_iHudPosition[MAX_PLAYERS + 1];
@@ -32,7 +32,7 @@ public plugin_init()
   set_task(HUD_UPDATE_INTERVAL, "Task_UpdateHud", .flags = "b");
 }
 
-public pp_initialized(bool: bSuccess)
+public pp_initialized(const bool: bSuccess)
 {
   if (!bSuccess)
     return;
@@ -56,21 +56,9 @@ ShowPositionMenu(const playerIndex)
 {
   new menu = menu_create("Позиция DHUD", "MenuHandler_Position");
 
-  new itemLabel[64];
-  new currentPosition = g_iHudPosition[playerIndex];
-
   for (new i = 0; i < POSITION_COUNT; i++)
   {
-    if (i == currentPosition)
-    {
-      formatex(itemLabel, charsmax(itemLabel), "* %s", g_szPositionNames[i]);
-    }
-    else
-    {
-      formatex(itemLabel, charsmax(itemLabel), "%s", g_szPositionNames[i]);
-    }
-
-    menu_additem(menu, itemLabel);
+    menu_additem(menu, g_szPositionNames[i]);
   }
 
   menu_display(playerIndex, menu);
@@ -89,7 +77,7 @@ public MenuHandler_Position(const playerIndex, menu, const item)
   g_iHudPosition[playerIndex] = item;
   pp_set_int(playerIndex, PREF_HUD_POSITION, item, 0);
 
-  client_print(playerIndex, print_chat, "[HUD] Позиция изменена на: %s", g_szPositionNames[item]);
+  client_print(playerIndex, print_chat, "[HUD] The position has been changed to: %s", g_szPositionNames[item]);
 }
 
 public Task_UpdateHud()
