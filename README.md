@@ -4,15 +4,23 @@ Allows you to easily manage and store player preferences, such as hats, music an
 
 With this plugin, players can easily save and load their preferences, even on different servers. This means they can quickly and easily return to their preferred settings without having to manually adjust settings every time they join a new server.
 
+## Installation
+
+Load **core** first, then exactly one provider:
+ 
+```
+player_prefs_core.amxx
+player_prefs_mysql.amxx    ; or flute
+```
+
+| Provider | Config file |
+|----------|-------------|
+| MySQL | `configs/player_prefs_mysql.json` → `host`, `user`, `pass`, `db` |
+| Flute | `configs/player_prefs_flute.json` → `url`, `token`, `server_id`, `timeout` |
+
+For Flute provider need a [Flute-PlayerPreferences](https://github.com/AmxxModularEcosystem/Flute-PlayerPreferences) module.
+
 ## Usage
-
-TODO
-
-## Providers
-
-TODO
-
-## Example
 
 ```Pawn
 #include <amxmodx>
@@ -121,3 +129,26 @@ DrawHud(playerIndex)
 }
 
 ```
+
+## Forwards
+ 
+| Forward | When |
+|---------|------|
+| `pp_initialized(bool: success)` | Provider connected, register keys here |
+| `pp_player_loaded(playerIndex)` | Player data ready, safe to read |
+| `pp_player_saved(playerIndex)` | A preference was written to storage |
+ 
+## Natives
+ 
+| Native | Description |
+|--------|-------------|
+| `pp_is_loaded(playerIndex)` | Returns true when the player's data is ready |
+| `pp_register_key(key[], default[])` | Register a key with a default value |
+| `pp_get_int(playerIndex, key[], default)` | Read an integer |
+| `pp_get_float(playerIndex, key[], default)` | Read a float |
+| `pp_get_bool(playerIndex, key[], default)` | Read a boolean |
+| `pp_get_string(playerIndex, key[], dest[], len)` | Read a string |
+| `pp_set_int(playerIndex, key[], value, default)` | Write an integer |
+| `pp_set_float(playerIndex, key[], value, default)` | Write a float |
+| `pp_set_bool(playerIndex, key[], value, default)` | Write a boolean |
+| `pp_set_string(playerIndex, key[], value[], default[])` | Write a string |
